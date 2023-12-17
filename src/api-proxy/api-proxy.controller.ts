@@ -6,8 +6,8 @@ export class ApiProxyController {
   constructor(private readonly apiProxyService: ApiProxyService) {}
 
   @Get('films/:id')
-  getFilm(@Param('id') id: number) {
-    return this.apiProxyService.getFilm(id);
+  getFilmById(@Param('id') id: number) {
+    return this.apiProxyService.getFilmById(id);
   }
 
   @Get('films')

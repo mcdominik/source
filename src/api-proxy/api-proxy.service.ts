@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { FilterDto } from './dto/filter.dto';
-import { SlowBuffer } from 'buffer';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class ApiProxyService {
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+
   private SWAPI_PAGE_SIZE = 10;
 
   async getFilms(page: number, search: string) {
@@ -21,7 +22,7 @@ export class ApiProxyService {
     );
   }
 
-  async getFilm(id: number) {
+  async getFilmById(id: number): Promise<Film> {
     const response = await axios.get(`${process.env.API_URL}/films/${id}`);
     return response.data;
   }
