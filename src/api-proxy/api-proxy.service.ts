@@ -8,7 +8,7 @@ export class ApiProxyService {
 
   private SWAPI_PAGE_SIZE = 10;
 
-  async getFilms(page: number, search: string) {
+  async getFilms(page: number, search: string): Promise<Film[]> {
     console.log('page and search');
     const response = await axios.get(
       `${process.env.API_URL}/films/?search=${search}&page=${page}`,
@@ -16,14 +16,56 @@ export class ApiProxyService {
     return response.data;
   }
 
-  filterFilmsByTitle(films: Film[], searchTerm: string): Film[] {
-    return films.filter((film) =>
-      film.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }
-
   async getFilmById(id: number): Promise<Film> {
     const response = await axios.get(`${process.env.API_URL}/films/${id}`);
+    return response.data;
+  }
+
+  async getSpecies(page: number, search: string): Promise<Species[]> {
+    const response = await axios.get(
+      `${process.env.API_URL}/species/?search=${search}&page=${page}`,
+    );
+    return response.data;
+  }
+
+  async getSpeciesById(id: number): Promise<Species> {
+    const response = await axios.get(`${process.env.API_URL}/species/${id}`);
+    return response.data;
+  }
+
+  async getVehicles(page: number, search: string): Promise<Vehicle[]> {
+    const response = await axios.get(
+      `${process.env.API_URL}/vehicles/?search=${search}&page=${page}`,
+    );
+    return response.data;
+  }
+
+  async getVehicleById(id: number): Promise<Vehicle> {
+    const response = await axios.get(`${process.env.API_URL}/vehicles/${id}`);
+    return response.data;
+  }
+
+  async getStarships(page: number, search: string): Promise<Starship[]> {
+    const response = await axios.get(
+      `${process.env.API_URL}/starships/?search=${search}&page=${page}`,
+    );
+    return response.data;
+  }
+
+  async getStarshipById(id: number): Promise<Starship> {
+    const response = await axios.get(`${process.env.API_URL}/starships/${id}`);
+    return response.data;
+  }
+
+  async getPlanets(page: number, search: string): Promise<Planet[]> {
+    const response = await axios.get(
+      `${process.env.API_URL}/planets/?search=${search}&page=${page}`,
+    );
+    return response.data;
+  }
+
+  async getPlanetById(id: number): Promise<Planet> {
+    const response = await axios.get(`${process.env.API_URL}/planets/${id}`);
     return response.data;
   }
 
@@ -126,26 +168,6 @@ export class ApiProxyService {
 
   getById(id: number) {
     const response = axios.get(`${process.env.API_URL}/${id}`);
-    return response;
-  }
-
-  getSpecies() {
-    const response = axios.get(`${process.env.API_URL}/species`);
-    return response;
-  }
-
-  getVehicles() {
-    const response = axios.get(`${process.env.API_URL}/vehicles`);
-    return response;
-  }
-
-  getStarships() {
-    const response = axios.get(`${process.env.API_URL}/starships`);
-    return response;
-  }
-
-  getPlanets() {
-    const response = axios.get(`${process.env.API_URL}/planets`);
     return response;
   }
 }
