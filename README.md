@@ -46,6 +46,12 @@ now main app should run on port 3001 and redis on port 6379.
 Use use it with page, search (or both) as follows:
 localhost:3001/api-proxy/<desired-object>?page=<number-of-page>search=<your-search-term>
 
+for example:
+localhost:3001/api-proxy/species?search=&page=2
+localhost:3001/api-proxy/species?search=human&page=
+localhost:3001/api-proxy/species?search=a&page=2
+
+
 ### getFilmById
 
 - **Endpoint:** `/api-proxy/films/:id`
