@@ -44,13 +44,13 @@ now main app should run on port 3001 and redis on port 6379.
 
 ## Endpoints
 
-Use use it with page, search (or both) as follows:
-localhost:3001/api-proxy/<desired-object>?page=<number-of-page>search=<your-search-term>
+Use it with page, search (or both) as follows:
+localhost:3001/api-proxy/DESIRED-OBJECT?page=PAGE-NUMBERsearch=YOUR-SEARCH-TERM
 
 for example:
-localhost:3001/api-proxy/species?search=&page=2
-localhost:3001/api-proxy/species?search=human&page=
-localhost:3001/api-proxy/species?search=a&page=2
+- localhost:3001/api-proxy/species?search=&page=1
+- localhost:3001/api-proxy/species?search=human&page=
+- localhost:3001/api-proxy/species?search=a&page=2
 
 
 ### getFilmById
@@ -116,8 +116,8 @@ run in root of this repository:
 npm run test:e2e -- --runInBand --forceExit
 ```
 ## Possible Improvements
-- full testing (with mocked swapi)
-- full documentation (for example with Swagger)
+- finish testing (with mocked swapi)
+- add better documentation (for example with Swagger)
 
 
 
