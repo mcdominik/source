@@ -10,7 +10,6 @@ export class ApiProxyService {
   private SWAPI_PAGE_SIZE = 10;
 
   async getFilms(page: number, search: string): Promise<Film[]> {
-    console.log('page and search');
     const response = await axios.get(
       `${process.env.API_URL}/films/?search=${search}&page=${page}`,
     );
@@ -121,8 +120,6 @@ export class ApiProxyService {
       for (const person of people) {
         names.push(person.name);
       }
-
-      console.log(names.length);
     }
     return names;
   }
@@ -163,7 +160,6 @@ export class ApiProxyService {
       }
     });
 
-    console.log(foundNames);
     return foundNames;
   }
 
