@@ -7,21 +7,21 @@ Created for recruiting purposes. (.env file available on main branch)
 
 ## Table of Contents
 - [How to run](#how-to-run)
-- [Methods](#endpoints)
-  - [getFilmById](#get-film-by-id)
-  - [getFilms](#get-films)
-  - [getSpeciesById](#get-species-by-id)
-  - [getSpecies](#get-species)
-  - [getVehicleById](#get-vehicle-by-id)
-  - [getVehicles](#get-vehicles)
-  - [getStarshipById](#get-starship-by-id)
-  - [getStarships](#get-starships)
-  - [getPlanetById](#get-planet-by-id)
-  - [getPlanets](#get-planets)
-  - [getUniquePairsWithCountFromFilmsOpeningCrawl](#get-unique-pairs-with-count-from-films-opening-crawl)
-  - [getMostFrequentNameFromFilmsOpeningCrawl](#get-most-frequent-name-from-films-opening-crawl)
-- Testing[#testing]
-- Possible Improvements[#possible-improvements]
+- [Endpoints](#endpoints)
+  - [getFilmById]
+  - [getFilms]
+  - [getSpeciesById]
+  - [getSpecies]
+  - [getVehicleById]
+  - [getVehicles]
+  - [getStarshipById]
+  - [getStarships]
+  - [getPlanetById]
+  - [getPlanets]
+  - [getUniquePairsWithCountFromFilmsOpeningCrawl]
+  - [getMostFrequentNameFromFilmsOpeningCrawl]
+Testing[#testing]
+Possible Improvements[#possible-improvements]
 
 ## How to run
 
