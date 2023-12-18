@@ -8,18 +8,18 @@ Created for recruiting purposes. (.env file available on main branch)
 ## Table of Contents
 - [How to run](#how-to-run)
 - [Endpoints](#endpoints)
-  - [getFilmById]
-  - [getFilms]
-  - [getSpeciesById]
-  - [getSpecies]
-  - [getVehicleById]
-  - [getVehicles]
-  - [getStarshipById]
-  - [getStarships]
-  - [getPlanetById]
-  - [getPlanets]
-  - [getUniquePairsWithCountFromFilmsOpeningCrawl]
-  - [getMostFrequentNameFromFilmsOpeningCrawl]
+  - getFilmById
+  - getFilms
+  - getSpeciesById
+  - getSpecies
+  - getVehicleById
+  - getVehicles
+  - getStarshipById
+  - getStarships
+  - getPlanetById
+  - getPlanets
+  - getUniquePairsWithCountFromFilmsOpeningCrawl
+  - getMostFrequentNameFromFilmsOpeningCrawl
 - [Testing](#testing)
 - [Possible Improvements](#possible-improvements)
 
