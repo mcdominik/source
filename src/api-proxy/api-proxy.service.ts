@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ApiProxyService {

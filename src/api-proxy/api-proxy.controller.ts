@@ -1,6 +1,8 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiProxyService } from './api-proxy.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('api-proxy')
 export class ApiProxyController {
   constructor(private readonly apiProxyService: ApiProxyService) {}
