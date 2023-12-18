@@ -2,12 +2,12 @@ services:
   api:
     container_name: proxy
     build: .
-    command: npm run start:dev
+    command: node dist/main
     volumes:
       - .:/usr/app/
       - /usr/app/node_modules
     ports:
-      - '3001:3000'
+      - 3001:3000
   redis:
     container_name: cache
     image: redis
