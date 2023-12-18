@@ -20,8 +20,8 @@ Created for recruiting purposes. (.env file available on main branch)
   - [getPlanets]
   - [getUniquePairsWithCountFromFilmsOpeningCrawl]
   - [getMostFrequentNameFromFilmsOpeningCrawl]
-Testing[#testing]
-Possible Improvements[#possible-improvements]
+- [Testing](#testing)
+- [Possible Improvements](#possible-improvements)
 
 ## How to run
 
