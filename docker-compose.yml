@@ -1,16 +1,13 @@
 services:
-  # api:
-  #   build:
-  #     dockerfile: Dockerfile
-  #     context: .
-  #     target: development
-  #   volumes:
-  #     - .:/usr/src/app
-  #   env_file:
-  #     - .env
-  #   command: npm run start:dev
-  #   ports:
-  #     - 3000:3000
+  api:
+    container_name: proxy
+    build: .
+    command: npm run start:dev
+    volumes:
+      - .:/usr/app/
+      - /usr/app/node_modules
+    ports:
+      - '3001:3000'
   redis:
     container_name: cache
     image: redis
@@ -18,7 +15,6 @@ services:
       - 6379:6379
     volumes:
       - redis:/data
-
 volumes:
   redis:
     driver: local
