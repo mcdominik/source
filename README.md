@@ -39,7 +39,8 @@ cd swapi-nest
 docker-compose up
 ```
 now main app should run on port 3001 and redis on port 6379.
-   
+
+⚠️ If you run main app without docker it will run on port 3000. (but still you need redis running on 6379)
 
 ## Endpoints
 
