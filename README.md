@@ -32,7 +32,9 @@ Instruction:
 ```bash
 git clone https://github.com/mcdominik/swapi-nest.git
 ```
-
+```bash
+cd swapi-nest
+```
 ```bash
 docker-compose up
 ```
@@ -100,9 +102,9 @@ counts most frequent name (word with count) from all opening crawls from the fil
   - name (string) or array of string (in case of multiple names with equal frequency)
 
 ## Testing
-
-Testing was implemented with jest, only caching mechanism is tested
-run in root of the folder:
+Second db was created for testing purposes (db with index 1)
+Iimplemented with jest, only caching mechanism is tested
+run in root of this repository:
 ```bash
 npm run test:e2e -- --runInBand --forceExit
 ```
