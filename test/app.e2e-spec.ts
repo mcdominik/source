@@ -1,57 +1,64 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
 
 import { Cache } from 'cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { INestApplication } from '@nestjs/common';
+import { ApiProxyService } from '../src/api-proxy/api-proxy.service';
 require('dotenv').config();
 
 describe('cache', () => {
   let app: INestApplication;
   let cacheManager: Cache;
-  let endpoint = 'api-proxy/films/1';
-  beforeAll(async () => {
+  let apiProxyService: ApiProxyService;
+
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        CacheModule.register({
-          store: redisStore,
-          host: process.env.REDIS_HOST,
-          port: process.env.REDIS_PORT,
-          db: 1,
-        }),
-      ],
+      imports: [AppModule.forRoot({ db: 1 })],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    cacheManager = app.get(CacheModule);
-
     await app.init();
 
-    if (cacheManager.get(endpoint)) {
-      cacheManager.del(endpoint);
-    }
+    cacheManager = app.get(CACHE_MANAGER);
+    apiProxyService = app.get(ApiProxyService);
+    await cacheManager.reset();
   });
 
-  it('should cached response', async () => {
+  it('should cache response', async () => {
+    const endpoint = '/api-proxy/films/1';
+
+    const cachedItemBeforeCall = await cacheManager.get(endpoint);
     const responseFirstCall = await request(app.getHttpServer())
       .get(endpoint)
       .expect(200);
-    const cachedItemFirstCall = cacheManager.get(endpoint);
-    expect(cachedItemFirstCall).toEqual(undefined);
 
+    const cachedItemAfterCall = await cacheManager.get(endpoint);
+
+    expect(cachedItemBeforeCall).toEqual(null);
+    expect(cachedItemAfterCall).toBeDefined();
+  });
+
+  it('should use cached response', async () => {
+    const endpoint = '/api-proxy/films/1';
+
+    const cacheGetSpy = jest.spyOn(cacheManager, 'get');
+    const serviceGetSpy = jest.spyOn(apiProxyService, 'getFilmById');
+
+    const responseFirstCall = await request(app.getHttpServer())
+      .get(endpoint)
+      .expect(200);
     const responseSecondCall = await request(app.getHttpServer())
       .get(endpoint)
       .expect(200);
-    const cachedItemSecondCall = cacheManager.get(endpoint);
 
-    expect(cacheManager.get).toHaveBeenCalledTimes(1);
-    expect(cacheManager.set).toHaveBeenCalledTimes(1);
+    expect(cacheGetSpy).toHaveBeenCalled();
+    expect(serviceGetSpy).toHaveBeenCalledTimes(1);
+  });
 
-    afterAll(async () => {
-      await app.close();
-    });
+  afterEach(async () => {
+    await app.close();
   });
 });
