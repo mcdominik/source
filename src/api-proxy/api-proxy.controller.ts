@@ -56,14 +56,4 @@ export class ApiProxyController {
   getPlanets(@Query('page') page: number, @Query('search') search: string) {
     return this.apiProxyService.getPlanets(page, search);
   }
-
-  @Get('films/crawls-with-unique-pairs')
-  getUniquePairsWithCountFromFilmsOpeningCrawl() {
-    return this.apiProxyService.getUniquePairsWithCountFromFilmsOpeningCrawl();
-  }
-
-  @Get('people/most-frequent-name-from-crawl')
-  getMostFrequentNameFromFilmsOpeningCrawl() {
-    return this.apiProxyService.getMostFrequentNameFromFilmsOpeningCrawl();
-  }
 }
