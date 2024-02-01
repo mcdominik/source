@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 import { Cache } from 'cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
 import { INestApplication } from '@nestjs/common';
 import { ApiProxyService } from '../src/api-proxy/api-proxy.service';
 require('dotenv').config();
@@ -31,9 +30,8 @@ describe('cache', () => {
     const endpoint = '/api-proxy/films/1';
 
     const cachedItemBeforeCall = await cacheManager.get(endpoint);
-    const responseFirstCall = await request(app.getHttpServer())
-      .get(endpoint)
-      .expect(200);
+
+    await request(app.getHttpServer()).get(endpoint).expect(200);
 
     const cachedItemAfterCall = await cacheManager.get(endpoint);
 
@@ -47,12 +45,8 @@ describe('cache', () => {
     const cacheGetSpy = jest.spyOn(cacheManager, 'get');
     const serviceGetSpy = jest.spyOn(apiProxyService, 'getFilmById');
 
-    const responseFirstCall = await request(app.getHttpServer())
-      .get(endpoint)
-      .expect(200);
-    const responseSecondCall = await request(app.getHttpServer())
-      .get(endpoint)
-      .expect(200);
+    await request(app.getHttpServer()).get(endpoint).expect(200);
+    await request(app.getHttpServer()).get(endpoint).expect(200);
 
     expect(cacheGetSpy).toHaveBeenCalled();
     expect(serviceGetSpy).toHaveBeenCalledTimes(1);
