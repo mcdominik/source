@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENV Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0c0e0f;
+    --surface:  #131618;
+    --border:   #1e2224;
+    --border2:  #262b2e;
+    --text:     #e8e6e1;
+    --muted:    #5a6068;
+    --muted2:   #3a3f45;
+    --temp:     #e8824a;
+    --hum:      #4aace8;
+    --press:    #7ce8a0;
+    --accent:   #e8e6e1;
+    --red:      #e84a4a;
+    --mono:     'DM Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: 24px 20px;
+    gap: 0;
+  }
+
+  /* subtle dot grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, #1e2224 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: .6;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .logo-title {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: .06em;
+  }
+
+  /* status pill */
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px 5px 8px;
+    border-radius: 99px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .04em;
+    transition: border-color .3s, color .3s;
+    user-select: none;
+  }
+
+  .status.connected { border-color: var(--press); color: var(--press); }
+  .status.error     { border-color: var(--red);   color: var(--red); }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted2);
+    transition: background .3s;
+    flex-shrink: 0;
+  }
+
+  .status.connected .dot { background: var(--press); box-shadow: 0 0 5px var(--press); }
+  .status.error     .dot { background: var(--red);   box-shadow: 0 0 5px var(--red); }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .status.connecting .dot { background: var(--temp); animation: pulse 1s ease-in-out infinite; }
+  .status.connecting { border-color: var(--temp); color: var(--temp); }
+
+  /* ── cards grid ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .4s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--c);
+    opacity: .6;
+    border-radius: 12px 12px 0 0;
+    transition: opacity .4s;
+  }
+
+  .card.live::before { opacity: 1; }
+  .card.live { border-color: var(--border2); }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color .3s;
+  }
+
+  .card.live .card-label { color: var(--c); }
+
+  .card-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -.01em;
+    transition: color .15s;
+  }
+
+  .card-value.flash { color: var(--c); }
+
+  .card-unit {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .card-icon {
+    position: absolute;
+    bottom: 12px; right: 14px;
+    font-size: 22px;
+    opacity: .07;
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* sparkline */
+  .spark {
+    height: 32px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .spark svg { display: block; width: 100%; height: 100%; }
+
+  /* ── connect button ── */
+  .btn-wrap { display: flex; gap: 10px; }
+
+  button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s, transform .1s;
+  }
+
+  button:active { transform: scale(.98); }
+
+  #btnConnect {
+    border-color: var(--press);
+    color: var(--press);
+  }
+
+  #btnConnect:hover { background: color-mix(in srgb, var(--press) 10%, transparent); }
+  #btnConnect:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  #btnDisconnect {
+    flex: 0 0 auto;
+    padding: 13px 16px;
+    border-color: var(--border2);
+    color: var(--muted);
+    display: none;
+  }
+
+  #btnDisconnect:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── log ── */
+  .log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-height: 80px;
+    overflow-y: auto;
+    letter-spacing: .02em;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .log .ts { color: var(--muted2); margin-right: 8px; }
+  .log .ok  { color: var(--press); }
+  .log .err { color: var(--red); }
+  .log .inf { color: var(--hum); }
+
+  /* ── footer ── */
+  footer {
+    padding: 0 2px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted2);
+    letter-spacing: .06em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #lastSeen { color: var(--muted2); }
+
+  /* ── no-BT warning ── */
+  .no-bt {
+    display: none;
+    background: color-mix(in srgb, var(--red) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 420px) {
+    .card-value { font-size: 22px; }
+    .cards { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">
+      <span class="logo-title">ENV Monitor</span>
+      <span class="logo-sub">Nano 33 BLE Sense</span>
+    </div>
+    <div class="status" id="statusPill">
+      <span class="dot"></span>
+      <span id="statusText">disconnected</span>
+    </div>
+  </header>
+
+  <div class="no-bt" id="noBtWarn">
+    Web Bluetooth is not available in this browser.<br>
+    Use Chrome or Edge on desktop / Android.
+  </div>
+
+  <div class="cards">
+    <!-- Temperature -->
+    <div class="card" id="cardT" style="--c: var(--temp)">
+      <span class="card-label">Temp</span>
+      <div>
+        <div class="card-value" id="valT">—</div>
+        <span class="card-unit">°C</span>
+      </div>
+      <div class="spark"><svg id="spkT" viewBox="0 0 80 32" preserveAspectRatio="none"><polyline id="spkTLine" fill="none" stroke="var(--temp)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" points=""/></svg></div>
+      <span class="card-icon">🌡</span>
+    </div>
+
+    <!-- Humidity -->
+    <div class="card" id="cardH" style="--c: var(--hum)">
+      <span class="card-label">Humidity</span>
+      <div>
+        <div class="card-value" id="valH">—</div>
+        <span class="card-unit">% RH</span>
+      </div>
+      <div class="spark"><svg id="spkH" viewBox="0 0 80 32" preserveAspectRatio="none"><polyline id="spkHLine" fill="none" stroke="var(--hum)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" points=""/></svg></div>
+      <span class="card-icon">💧</span>
+    </div>
+
+    <!-- Pressure -->
+    <div class="card" id="cardP" style="--c: var(--press)">
+      <span class="card-label">Pressure</span>
+      <div>
+        <div class="card-value" id="valP">—</div>
+        <span class="card-unit">hPa</span>
+      </div>
+      <div class="spark"><svg id="spkP" viewBox="0 0 80 32" preserveAspectRatio="none"><polyline id="spkPLine" fill="none" stroke="var(--press)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" points=""/></svg></div>
+      <span class="card-icon">⬆</span>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button id="btnConnect">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="8" cy="8" r="6.5"/>
+        <path d="M5 8l2 2 4-4"/>
+      </svg>
+      Connect via Bluetooth
+    </button>
+    <button id="btnDisconnect" title="Disconnect">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M3 3l10 10M13 3L3 13"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="log" id="log">
+    <span class="ts">--:--:--</span><span class="inf">ready — press connect to scan for devices</span>
+  </div>
+
+  <footer>
+    <span>BLE · ENV SENSING SERVICE 0x181A</span>
+    <span id="lastSeen">—</span>
+  </footer>
+
+</div>
+
+<script>
+// ── BLE UUIDs ──────────────────────────────────────────────────────────────
+const SVC_UUID  = 0x181A;
+const TEMP_UUID = 0x2A6E;
+const HUM_UUID  = 0x2A6F;
+const PRES_UUID = 0x2A6D;
+
+// ── Sparkline history (last N readings) ───────────────────────────────────
+const HIST = 40;
+const history = { t: [], h: [], p: [] };
+
+// ── DOM refs ──────────────────────────────────────────────────────────────
+const pill      = document.getElementById('statusPill');
+const pillText  = document.getElementById('statusText');
+const btnCon    = document.getElementById('btnConnect');
+const btnDis    = document.getElementById('btnDisconnect');
+const logEl     = document.getElementById('log');
+const lastSeen  = document.getElementById('lastSeen');
+const noBtWarn  = document.getElementById('noBtWarn');
+
+let device = null;
+let server = null;
+
+// ── No Web Bluetooth warning ───────────────────────────────────────────────
+if (!navigator.bluetooth) {
+  noBtWarn.style.display = 'block';
+  btnCon.disabled = true;
+}
+
+// ── Logging ───────────────────────────────────────────────────────────────
+function log(msg, type = '') {
+  const t = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const line = document.createElement('div');
+  line.innerHTML = `<span class="ts">${t}</span><span class="${type}">${msg}</span>`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+  // Keep log from growing forever
+  while (logEl.children.length > 50) logEl.removeChild(logEl.firstChild);
+}
+
+// ── Status pill ────────────────────────────────────────────────────────────
+function setStatus(s, text) {
+  pill.className = 'status ' + s;
+  pillText.textContent = text;
+}
+
+// ── Value update + flash ───────────────────────────────────────────────────
+function updateCard(elId, cardId, value, decimals = 1) {
+  const el   = document.getElementById(elId);
+  const card = document.getElementById(cardId);
+  el.textContent = value.toFixed(decimals);
+  card.classList.add('live');
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 400);
+}
+
+// ── Sparkline ─────────────────────────────────────────────────────────────
+function pushSpark(arr, val, lineId) {
+  arr.push(val);
+  if (arr.length > HIST) arr.shift();
+  if (arr.length < 2) return;
+  const mn = Math.min(...arr), mx = Math.max(...arr);
+  const range = mx - mn || 1;
+  const w = 80, h = 32, pad = 2;
+  const pts = arr.map((v, i) => {
+    const x = pad + (i / (arr.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - mn) / range) * (h - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  document.getElementById(lineId).setAttribute('points', pts);
+}
+
+// ── Decode BLE values (little-endian) ─────────────────────────────────────
+function decodeTemp(dv)  { return dv.getInt16(0, true)  / 100; }
+function decodeHum(dv)   { return dv.getUint16(0, true) / 100; }
+function decodePress(dv) { return dv.getUint32(0, true) / 1000; }
+
+// ── Notification handlers ─────────────────────────────────────────────────
+function onTemp(event) {
+  const v = decodeTemp(event.target.value);
+  updateCard('valT', 'cardT', v, 1);
+  pushSpark(history.t, v, 'spkTLine');
+  tick();
+}
+
+function onHum(event) {
+  const v = decodeHum(event.target.value);
+  updateCard('valH', 'cardH', v, 1);
+  pushSpark(history.h, v, 'spkHLine');
+  tick();
+}
+
+function onPress(event) {
+  const v = decodePress(event.target.value);
+  updateCard('valP', 'cardP', v, 1);
+  pushSpark(history.p, v, 'spkPLine');
+  tick();
+}
+
+function tick() {
+  const t = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  lastSeen.textContent = 'last update ' + t;
+}
+
+// ── Connect ───────────────────────────────────────────────────────────────
+btnCon.addEventListener('click', async () => {
+  if (!navigator.bluetooth) return;
+  try {
+    setStatus('connecting', 'scanning…');
+    btnCon.disabled = true;
+    log('scanning for EnvSensor…', 'inf');
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [SVC_UUID] }],
+      optionalServices: [SVC_UUID]
+    });
+
+    log(`found: ${device.name || device.id}`, 'inf');
+    device.addEventListener('gattserverdisconnected', onDisconnect);
+
+    setStatus('connecting', 'connecting…');
+    server = await device.gatt.connect();
+    log('GATT connected', 'ok');
+
+    const svc  = await server.getPrimaryService(SVC_UUID);
+
+    const cTemp  = await svc.getCharacteristic(TEMP_UUID);
+    const cHum   = await svc.getCharacteristic(HUM_UUID);
+    const cPress = await svc.getCharacteristic(PRES_UUID);
+
+    // Read initial values immediately
+    const initT = await cTemp.readValue();
+    const initH = await cHum.readValue();
+    const initP = await cPress.readValue();
+    onTemp({ target: { value: initT } });
+    onHum({ target: { value: initH } });
+    onPress({ target: { value: initP } });
+
+    // Subscribe to notifications
+    await cTemp.startNotifications();  cTemp.addEventListener('characteristicvaluechanged', onTemp);
+    await cHum.startNotifications();   cHum.addEventListener('characteristicvaluechanged', onHum);
+    await cPress.startNotifications(); cPress.addEventListener('characteristicvaluechanged', onPress);
+
+    log('subscribed to notifications', 'ok');
+    setStatus('connected', 'connected');
+    btnCon.style.display = 'none';
+    btnDis.style.display = 'flex';
+
+  } catch (err) {
+    const msg = err.message || String(err);
+    if (msg.includes('cancelled') || msg.includes('User cancelled')) {
+      log('scan cancelled by user', '');
+    } else {
+      log('error: ' + msg, 'err');
+    }
+    setStatus('', 'disconnected');
+    btnCon.disabled = false;
+  }
+});
+
+// ── Disconnect ────────────────────────────────────────────────────────────
+btnDis.addEventListener('click', () => {
+  if (device && device.gatt.connected) device.gatt.disconnect();
+});
+
+function onDisconnect() {
+  log('device disconnected', 'err');
+  setStatus('error', 'disconnected');
+  btnCon.style.display = 'flex';
+  btnCon.disabled = false;
+  btnDis.style.display = 'none';
+  device = null; server = null;
+}
+</script>
+</body>
+</html>
