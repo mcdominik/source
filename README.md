@@ -1,16 +1,19 @@
-# Roadmap:
+# YouTube Tutorial Source Code
 
+This repository contains the source code for my YouTube tutorials.
 
-## nest-redis-example-app
-YouTube Tutorial: https://youtu.be/9y2nta9pf8o
+## Arduino Tutorials
 
-<img src="https://mcdominik.github.io/images/nest-redis.png" width="200"/>
+| Tutorial | YouTube | Website |
+| --- | --- | --- |
+| Arduino LCD Display (I2C) | [Watch the video](https://www.youtube.com/watch?v=-jiHul1kQh4) | — |
+| Arduino HC-SR04 Ultrasonic Sensor | [Watch the video](https://www.youtube.com/watch?v=SIc6zj06bhQ) | — |
+| Arduino OLED Display | [Watch the video](https://www.youtube.com/watch?v=___p9JYbTc0) | [Read the tutorial](https://www.dominikbuilds.com/posts/arduino-oled-display/) |
+| Arduino Servo Motors | [Watch the video](https://www.youtube.com/watch?v=1mDnaiEytAI) | [Read the tutorial](https://www.dominikbuilds.com/posts/arduino-servo-motors/) |
 
+## Raspberry Pi Tutorials
 
-
-## nest-openai-example-app
-YouTube Tutorial: https://youtu.be/t4B74nnTxGs
-
-<img src="https://mcdominik.github.io/images/nest-openai.png" width="200"/>
-
-
+| Tutorial | YouTube |
+| --- | --- |
+| Raspberry Pi Servo Motors | [Watch the video](https://www.youtube.com/watch?v=g1eMMIUmh6E) |
+| Raspberry Pi DC Motors | [Watch the video](https://www.youtube.com/watch?v=3FzD-QalrEU) |
